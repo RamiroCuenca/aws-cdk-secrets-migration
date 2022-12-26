@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as yaml from 'js-yaml';
 import * as AWS from 'aws-sdk';
 import { Construct } from 'constructs';
+import * as sm from 'aws-cdk-lib/aws-secretsmanager'
 
 // An interface representing an object with a "secrets" property
 // that is an array of arrays of strings
@@ -27,9 +28,6 @@ export class SecretManagerStack extends cdk.Stack {
     // Create a new client for the AWS Systems Manager (SSM) service
     const ssm = new AWS.SSM();
 
-    // Create a new client for the AWS Secrets Manager service
-    const secretsManager = new AWS.SecretsManager();
-
     // Iterate over the list of secrets in the "secretsObject"
     YAMLfile["secrets"].forEach(async (secret) => {
       // Log the names of the SSM parameter and the Secrets Manager secret
@@ -40,7 +38,7 @@ export class SecretManagerStack extends cdk.Stack {
       const value = await this.getParameterValue(ssm, secret[0]);
 
       // Create a new secret in Secrets Manager with the specified name and value
-      await this.createSecret(secretsManager, secret[1], value);
+      await this.createSecret(this, secret[1], value);
     });
   }
 
@@ -65,11 +63,11 @@ export class SecretManagerStack extends cdk.Stack {
   }
 
   // A private method for creating a new secret in Secrets Manager
-  private async createSecret(secretsManager: AWS.SecretsManager, name: string, value: string): Promise<void> {
+  private async createSecret(ctx: any, name: string, value: string): Promise<void> {
     // Call the "createSecret" method on the Secrets Manager client to create a new secret
-    await secretsManager.createSecret({
-      Name: name,
-      SecretString: value
-    }).promise();
+    const secret = new sm.Secret(ctx, name, {
+      secretName        : name,
+      secretStringValue : cdk.SecretValue.unsafePlainText(value)
+    })
   }
 }
