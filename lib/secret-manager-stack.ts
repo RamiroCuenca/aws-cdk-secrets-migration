@@ -1,10 +1,24 @@
+// The AWS Cloud Development Kit (CDK) library
 import * as cdk from 'aws-cdk-lib';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as yaml from 'js-yaml';
+
+// The AWS SDK for JavaScript in Node.js
 import * as AWS from 'aws-sdk';
+
+// A library for interacting with the AWS Secrets Manager service
+import * as sm from 'aws-cdk-lib/aws-secretsmanager';
+
+// A built-in Node.js library for interacting with the file system
+import * as fs from 'fs';
+
+// A built-in Node.js library for working with file and directory paths
+import * as path from 'path';
+
+// A library for parsing and stringifying YAML
+import * as yaml from 'js-yaml';
+
+// An abstract class from the "aws-cdk-lib" library that represents the
+// building blocks of a CDK application
 import { Construct } from 'constructs';
-import * as sm from 'aws-cdk-lib/aws-secretsmanager'
 
 // An interface representing an object with a "secrets" property
 // that is an array of arrays of strings
