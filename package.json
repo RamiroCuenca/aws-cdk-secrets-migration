@@ -1,8 +1,8 @@
 {
-  "name": "2_migrate_secrets_from_ssm_to_sm",
+  "name": "aws_cdk",
   "version": "0.1.0",
   "bin": {
-    "2_migrate_secrets_from_ssm_to_sm": "bin/2_migrate_secrets_from_ssm_to_sm.js"
+    "aws_cdk": "bin/aws_cdk.js"
   },
   "scripts": {
     "build": "tsc",

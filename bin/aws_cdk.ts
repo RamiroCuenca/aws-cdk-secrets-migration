@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { 2MigrateSecretsFromSsmToSmStack } from '../lib/2_migrate_secrets_from_ssm_to_sm-stack';
+import { aws_cdk } from '../lib/aws_cdk';
 
 const app = new cdk.App();
-new 2MigrateSecretsFromSsmToSmStack(app, '2MigrateSecretsFromSsmToSmStack', {
+new aws_cdk(app, 'aws_cdk', {
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
    * but a single synthesized template can be deployed anywhere. */
