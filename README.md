@@ -61,3 +61,26 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 If you re-deploy the CDK project after creating a blank secret in Secrets Manager and manually populating its value, the CDK deployment process will not overwrite the secret value. The secret value will remain unchanged after the CDK deployment.
 
 However, it's important to note that if you update the CDK code to include a value for the secret, and then re-deploy the project, the secret value will be updated to the value specified in the CDK code.
+
+```
+import * as sm from 'aws-cdk-lib/aws-secretsmanager';
+
+// Create a blank secret in Secrets Manager
+const secret = new sm.Secret(this, 'MySecret', {
+  secretName: 'MySecretName'
+});
+```
+
+and then manually populate its value through the Secrets Manager console or the Secrets Manager API, the secret value will remain unchanged after re-deploying the CDK project.
+
+However, if you update the CDK code to include a value for the secret, like this:
+import * as sm from 'aws-cdk-lib/aws-secretsmanager';
+
+```
+// Create a secret in Secrets Manager with a specified value
+const secret = new sm.Secret(this, 'MySecret', {
+  secretName: 'MySecretName',
+  secretString: 'MySecretValue'
+});
+```
+and re-deploy the CDK project, the secret value will be updated to MySecretValue.
