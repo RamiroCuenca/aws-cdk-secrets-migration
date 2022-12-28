@@ -52,5 +52,12 @@ Before you can download and run this project locally, you will need the followin
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.  
 
+## FAQ
+
+#### If I create a blank secret in AWS Secrets Manager using AWS CDK and then, I populate it value manually... if I re-deploy the project later, what would happen to the secret value? Would it be blank again or the value I populated would remain?
+
+If you re-deploy the CDK project after creating a blank secret in Secrets Manager and manually populating its value, the CDK deployment process will not overwrite the secret value. The secret value will remain unchanged after the CDK deployment.
+
+However, it's important to note that if you update the CDK code to include a value for the secret, and then re-deploy the project, the secret value will be updated to the value specified in the CDK code.
