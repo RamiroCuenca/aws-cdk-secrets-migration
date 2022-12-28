@@ -12,3 +12,4 @@ clean:
 	rm -rf bin/*.d.ts
 	rm -rf lib/*.js
 	rm -rf lib/*.d.ts
+	rm -rf cdk.out/
