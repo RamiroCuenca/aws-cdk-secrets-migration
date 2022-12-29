@@ -7,6 +7,9 @@ import * as AWS from 'aws-sdk';
 // A library for interacting with the AWS Secrets Manager service
 import * as sm from 'aws-cdk-lib/aws-secretsmanager';
 
+// A library for interacting with the AWS IAM service
+import * as iam from 'aws-cdk-lib/aws-iam';
+
 // A built-in Node.js library for interacting with the file system
 import * as fs from 'fs';
 
@@ -20,11 +23,27 @@ import * as yaml from 'js-yaml';
 // building blocks of a CDK application
 import { Construct } from 'constructs';
 
+import { getSamlProviderArn } from './saml-provider-arn';
+
 // An interface representing an object with a "secrets" property
 // that is an array of arrays of strings
 interface secretsObject {
   secrets : string[][];
 }
+
+var SAML_PROVIDER = ''; // Store the SAML provider ARN
+
+async function fillSamlProvider() {
+  try {
+    // Call the getSamlProviderArn function and assign the result to the SAML_PROVIDER variable
+    SAML_PROVIDER = await getSamlProviderArn('OneLogin');
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Call the fillSamlProvider function to populate the SAML_PROVIDER variable
+fillSamlProvider();
 
 // A class that extends the "Stack" class from the "aws-cdk-lib" library
 export class SecretManagerStack extends cdk.Stack {
@@ -35,6 +54,23 @@ export class SecretManagerStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     // Call the super constructor to create a new "Stack" object
     super(scope, id, props);
+
+    // Create a new IAM role for SAML authentication
+    const samlRole = new iam.Role(this, 'SAMLRole', {
+      assumedBy: new iam.CompositePrincipal(
+        // SAML_PROVIDER_ARN that will be trusted to assume the role
+        new iam.FederatedPrincipal(SAML_PROVIDER, {
+          account: cdk.Stack.of(this).account, // AWS account ID (where the role will be created)
+          region: 'us-east-1' // Region where the role will be created
+        }, 'SAML')
+      )
+    });
+
+    // Add permissions to the SAML role to read and write secrets in Secrets Manager
+    samlRole.addToPolicy(new iam.PolicyStatement({
+      actions: ['secretsmanager:ListSecrets', 'secretsmanager:GetSecretValue', 'secretsmanager:CreateSecret', 'secretsmanager:UpdateSecret', 'secretsmanager:DeleteSecret'],
+      resources: ['*']
+    }));
 
     // Read the "secrets.yml" file, parse it as a "secretsObject", and store it in a variable
     const YAMLfile = yaml.load(fs.readFileSync(path.resolve(__dirname, 'secrets.yml'), 'utf8')) as secretsObject;
@@ -81,7 +117,8 @@ export class SecretManagerStack extends cdk.Stack {
     // Call the "createSecret" method on the Secrets Manager client to create a new secret
     const secret = new sm.Secret(ctx, name, {
       secretName        : name,
-      secretStringValue : cdk.SecretValue.unsafePlainText(value)
+      secretStringValue : cdk.SecretValue.unsafePlainText(value),
+      // secretArn: '<OWNER_ARN>' // Replace <OWNER_ARN> with the ARN of the IAM user or role that will be the owner of the secret
     })
   }
 }
