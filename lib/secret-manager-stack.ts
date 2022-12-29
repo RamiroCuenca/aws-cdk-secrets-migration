@@ -68,8 +68,13 @@ export class SecretManagerStack extends cdk.Stack {
 
     // Add permissions to the SAML role to read and write secrets in Secrets Manager
     samlRole.addToPolicy(new iam.PolicyStatement({
-      actions: ['secretsmanager:ListSecrets', 'secretsmanager:GetSecretValue', 'secretsmanager:CreateSecret', 'secretsmanager:UpdateSecret', 'secretsmanager:DeleteSecret'],
-      resources: ['*']
+      actions: [
+        'secretsmanager:ListSecrets',
+        'secretsmanager:GetSecretValue',
+        'secretsmanager:CreateSecret',
+        'secretsmanager:UpdateSecret',
+        'secretsmanager:DeleteSecret'
+      ], resources: ['*']
     }));
 
     // Read the "secrets.yml" file, parse it as a "secretsObject", and store it in a variable
@@ -117,8 +122,7 @@ export class SecretManagerStack extends cdk.Stack {
     // Call the "createSecret" method on the Secrets Manager client to create a new secret
     const secret = new sm.Secret(ctx, name, {
       secretName        : name,
-      secretStringValue : cdk.SecretValue.unsafePlainText(value),
-      // secretArn: '<OWNER_ARN>' // Replace <OWNER_ARN> with the ARN of the IAM user or role that will be the owner of the secret
+      secretStringValue : cdk.SecretValue.unsafePlainText(value)
     })
   }
 }
