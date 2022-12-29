@@ -1,6 +1,6 @@
 import * as AWS from 'aws-sdk';
 
-async function getSamlProviderArn(samlProviderName: string): Promise<string> {
+export async function getSamlProviderArn(samlProviderName: string): Promise<string> {
   // Create an instance of the IAM client
   const iam = new AWS.IAM();
 
@@ -8,7 +8,7 @@ async function getSamlProviderArn(samlProviderName: string): Promise<string> {
   const samlProviders = await iam.listSAMLProviders().promise();
 
   // Find the SAML provider with the name you specified
-  const samlProvider = samlProviders.SAMLProviderList!.find(p => p.Name === samlProviderName);
+  const samlProvider = samlProviders.SAMLProviderList!.find(p => p.Arn!.split('/').pop() === samlProviderName);
 
   if (!samlProvider) {
     throw new Error(`SAML provider '${samlProviderName}' not found`);
