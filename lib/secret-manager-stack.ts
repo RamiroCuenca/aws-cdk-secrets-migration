@@ -31,20 +31,6 @@ interface secretsObject {
   secrets : string[][];
 }
 
-var SAML_PROVIDER = ''; // Store the SAML provider ARN
-
-async function fillSamlProvider() {
-  try {
-    // Call the getSamlProviderArn function and assign the result to the SAML_PROVIDER variable
-    SAML_PROVIDER = await getSamlProviderArn('OneLogin');
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-// Call the fillSamlProvider function to populate the SAML_PROVIDER variable
-fillSamlProvider();
-
 // A class that extends the "Stack" class from the "aws-cdk-lib" library
 export class SecretManagerStack extends cdk.Stack {
   // The constructor for the class
