@@ -55,16 +55,24 @@ export class SecretManagerStack extends cdk.Stack {
     // Call the super constructor to create a new "Stack" object
     super(scope, id, props);
 
-    // Create a new IAM role for SAML authentication
     const samlRole = new iam.Role(this, 'SAMLRole', {
-      assumedBy: new iam.CompositePrincipal(
-        // SAML_PROVIDER_ARN that will be trusted to assume the role
-        new iam.FederatedPrincipal(SAML_PROVIDER, {
-          account: cdk.Stack.of(this).account, // AWS account ID (where the role will be created)
-          region: 'us-east-1' // Region where the role will be created
-        }, 'SAML')
-      )
+      roleName: 'ADFS-Secrets-Admin',
+      description: 'Role required to populate SecretsManager secrets',
+      assumedBy: new iam.FederatedPrincipal('saml-provider', {
+        StringEquals: {
+          'SAML:aud': 'https://app.onelogin.com/saml/metadata/XXXXXXX-UUID-XXXXXXX'
+        },
+        'ForAnyValue:StringLike': {
+          'SAML:Attributes.Role': `arn:aws:iam::${cdk.Stack.of(this).account}:role/*`
+        }
+      }),
     });
+
+    // Attach a policy that allows the role to assume a SAML identity
+    samlRole.addToPolicy(new iam.PolicyStatement({
+      actions: ['sts:AssumeRoleWithSAML'],
+      resources: ['*'],
+    }));
 
     // Add permissions to the SAML role to read and write secrets in Secrets Manager
     samlRole.addToPolicy(new iam.PolicyStatement({
@@ -125,4 +133,12 @@ export class SecretManagerStack extends cdk.Stack {
       secretStringValue : cdk.SecretValue.unsafePlainText(value)
     })
   }
+
+  // Read a secret from secrets manager
+  private async readSecret(ctx: any, name: string): Promise<string> {
+    // Call the "createSecret" method on the Secrets Manager client to create a new secret
+    const secret = sm.Secret.fromSecretNameV2(ctx, name, name)
+    return secret.secretValue.toString()
+  }
+  
 }
