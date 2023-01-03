@@ -23,8 +23,6 @@ import * as yaml from 'js-yaml';
 // building blocks of a CDK application
 import { Construct } from 'constructs';
 
-import { getSamlProviderArn } from './saml-provider-arn';
-
 // An interface representing an object with a "secrets" property
 // that is an array of arrays of strings
 interface secretsObject {
@@ -87,7 +85,7 @@ export class SecretManagerStack extends cdk.Stack {
       const value = await this.getParameterValue(ssm, secret[0]);
 
       // Create a new secret in Secrets Manager with the specified name and value
-      await this.createSecret(this, secret[1], value);
+      await this.createSecret(this, secret[1], value, "dv");
     });
   }
 
@@ -112,10 +110,12 @@ export class SecretManagerStack extends cdk.Stack {
   }
 
   // A private method for creating a new secret in Secrets Manager
-  private async createSecret(ctx: any, name: string, value: string): Promise<void> {
+  private async createSecret(ctx: any, name: string, value: string, env: string): Promise<void> {
+    const secName = `${env}/${name}`;
+
     // Call the "createSecret" method on the Secrets Manager client to create a new secret
     const secret = new sm.Secret(ctx, name, {
-      secretName        : name,
+      secretName        : secName,
       secretStringValue : cdk.SecretValue.unsafePlainText(value)
     })
   }
